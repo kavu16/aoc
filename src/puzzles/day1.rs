@@ -22,20 +22,15 @@ fn test() {
 
 pub fn solve1(data: &String) {
     let mut sum = 0;
-    for line in data.split('\n') {
-        match line {
-            "" => break,
-            _ => {
-                let nums = line.chars()
-                                        .filter(|l| l.is_numeric())
-                                        .map(|d| d.to_digit(10).unwrap())
-                                        .collect::<Vec<u32>>();
-                let first = *nums.iter().nth(0).unwrap();
-                let last = *nums.iter().last().unwrap();
+    for line in data.lines() {
+        let nums = line.chars()
+                                .filter(|l| l.is_numeric())
+                                .map(|d| d.to_digit(10).unwrap())
+                                .collect::<Vec<u32>>();
+        let first = *nums.iter().nth(0).unwrap();
+        let last = *nums.iter().last().unwrap();
 
-                sum += (first as i32) * 10 + last as i32;
-            }
-        }
+        sum += (first as i32) * 10 + last as i32;
     }
     println!("Sum1 = {}", sum);
 }
@@ -92,18 +87,13 @@ pub fn solve_aho_corasick(data: &String) {
     let nums = &["one", "1", "two", "2", "three", "3", "four", "4", "five", "5", "six", "6", "seven", "7", "eight", "8", "nine", "9"];
 
     let ac = AhoCorasick::new(nums).unwrap();
-    for line in data.split('\n') {
-        match line {
-            "" => break,
-            _ => {
-                let matches = ac.find_overlapping_iter(line).collect::<Vec<_>>();
+    for line in data.lines() {
+        let matches = ac.find_overlapping_iter(line).collect::<Vec<_>>();
 
-                let first = matches.iter().nth(0).unwrap().pattern();
-                let last = matches.iter().last().unwrap().pattern();
+        let first = matches.iter().nth(0).unwrap().pattern().as_u32()/2 + 1;
+        let last = matches.iter().last().unwrap().pattern().as_u32()/2 + 1;
 
-                sum += 10 * (1 + first.as_i32()/2) + (1 + last.as_i32() / 2);
-            }
-        }
+        sum += 10 * first as i32 + last as i32;
     }
     println!("SumAC = {}", sum);
 }
