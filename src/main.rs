@@ -17,6 +17,9 @@ fn main() {
                     day1::solve2(&data);
                     day1::solve_aho_corasick(&data);
                 }
+                "day2" => {
+                    day2::solve1(&data);
+                }
                 _ => {
                     panic!("Invalid arg!");
                 }
