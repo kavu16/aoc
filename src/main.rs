@@ -19,6 +19,7 @@ fn main() {
                 }
                 "day2" => {
                     day2::solve1(&data);
+                    day2::solve2(&data);
                 }
                 _ => {
                     panic!("Invalid arg!");
