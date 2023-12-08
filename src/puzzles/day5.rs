@@ -1,47 +1,85 @@
 #[test]
 
 fn test() {
-    solve1(&String::from(
-""
-    ));
+    let data = String::from(
+"seeds: 79 14 55 13
 
-    solve2(&String::from(
-""
-    ));
+seed-to-soil map:
+50 98 2
+52 50 48
+
+soil-to-fertilizer map:
+0 15 37
+37 52 2
+39 0 15
+
+fertilizer-to-water map:
+49 53 8
+0 11 42
+42 0 7
+57 7 4
+
+water-to-light map:
+88 18 7
+18 25 70
+
+light-to-temperature map:
+45 77 23
+81 45 19
+68 64 13
+
+temperature-to-humidity map:
+0 69 1
+1 0 69
+
+humidity-to-location map:
+60 56 37
+56 93 4"
+    );
+
+    solve1(&data);
+
+    solve2(&data);
 }
 
-use::std::collections::HashSet;
+// use::std::collections::HashMap;
 
 pub fn solve1(data: &String) {
-    let mut score = 0;
+    let data = data.lines().collect::<Vec<_>>();
 
-    for line in data.lines() {
-        let nums: Vec<&str> = line.split('|').collect();
-        let winners: HashSet<i32> = nums[0].split_whitespace().filter(|c| c.parse::<i32>().is_ok()).map(|n| n.parse::<i32>().unwrap()).collect();
-        let my_nums: HashSet<i32> = nums[1].split_whitespace().filter(|c| c.parse::<i32>().is_ok()).map(|n| n.parse::<i32>().unwrap()).collect();
+    let mut seeds: Vec<(u64, bool)> = data[0]
+                                .split_whitespace()
+                                .filter(|s| s.parse::<u64>().is_ok())
+                                .map(|s| (s.parse::<u64>().unwrap(), false))
+                                .collect();
 
-        let p = winners.intersection(&my_nums).count();
-        if p == 0 {continue;}
-        score += 2i32.pow(p as u32 - 1);
-    }
+    for line in &data[2..] {
+        if !line.is_empty() && !line.contains("map") {
+            let dsr: Vec<u64> = line.split_whitespace().map(|c| c.parse::<u64>().unwrap()).collect();
+            let dest = dsr[0];
+            let src = dsr[1];
+            let rng = dsr[2];
 
-    println!("Part 1 = {}", score);
-}
-
-pub fn solve2(data: &String) {
-    let mut tickets = vec![1; data.lines().count()];
-
-    for (index, line) in data.lines().enumerate() {
-        let nums: Vec<&str> = line.split('|').collect();
-        let winners: HashSet<i32> = nums[0].split_whitespace().filter(|c| c.parse::<i32>().is_ok()).map(|n| n.parse::<i32>().unwrap()).collect();
-        let my_nums: HashSet<i32> = nums[1].split_whitespace().filter(|c| c.parse::<i32>().is_ok()).map(|n| n.parse::<i32>().unwrap()).collect();
-
-        let m = winners.intersection(&my_nums).count();
-
-        for i in (index+1)..(index+1+m) {
-            tickets[i] += tickets[index];
+            seeds = seeds.iter().map(|(seed, seen)| {
+                if !seen && src <= *seed && *seed <= src + rng {
+                    let idx = *seed - src;
+                    ((dest + idx), true)
+                } else {
+                    (*seed, *seen)
+                }
+            }).collect();
+        } else {
+            seeds = seeds.iter().map(|(seed, _)| (*seed, false)).collect();
         }
     }
 
-    println!("Part 2 = {}", tickets.iter().sum::<i32>());
+    let loc = seeds.iter().map(|(seed, _)| *seed).min().unwrap();
+
+    println!("Part 1 = {}", loc);
+}
+
+pub fn solve2(data: &String) {
+    let mut loc = 0;
+
+    println!("Part 2 = {}", loc);
 }
