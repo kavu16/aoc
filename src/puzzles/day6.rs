@@ -14,20 +14,29 @@ Distance:  9  40  200"
 pub fn solve1(data: &String) {
     let data = data.lines().collect::<Vec<_>>();
 
-    let times: Vec<i32> = data[0].split_whitespace()[1..].iter().map(|t| t.parse::<i32>()).collect();
-    let distances: Vec<i32> = data[1].split_whitespace()[1..].iter().map(|t| t.parse::<i32>()).collect();
+    let times = data[0].split_whitespace().filter(|t| t.parse::<i32>().is_ok()).map(|t| t.parse::<i32>().unwrap());
+    let distances = data[1].split_whitespace().filter(|d| d.parse::<i32>().is_ok()).map(|d| d.parse::<i32>().unwrap());
 
-    let races = times.zip(&distances);
+    let races: Vec<(i32, i32)> = times.zip(distances).collect();
+    let mut res = 1;
 
     for (t, d) in races {
-        println!("Time = {t}, distance = {d}");
+        res *= (0..t+1).filter(|r| r*(t-r) > d).count();
     }
 
-    println!("Part 1 = {}", 0);
+    println!("Part 1 = {}", res);
 }
 
-pub fn solve1(data: &String) {
+pub fn solve2(data: &String) {
     let data = data.lines().collect::<Vec<_>>();
 
-    println!("Part 2 = {}", 0);
+    let (_, t) = data[0].split_once(' ').unwrap();
+    let (_, d) = data[1].split_once(' ').unwrap();
+
+    let time: u64 = t.chars().filter(|c| !c.is_whitespace()).collect::<String>().parse::<u64>().unwrap();
+    let distance: u64 = d.chars().filter(|c| !c.is_whitespace()).collect::<String>().parse::<u64>().unwrap();
+
+    let res = (0..time).filter(|r| r*(time-r) > distance).count();
+
+    println!("Part 2 = {}", res);
 }
