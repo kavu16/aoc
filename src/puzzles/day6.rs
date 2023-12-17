@@ -17,10 +17,10 @@ pub fn solve1(data: &String) {
     let times = data[0].split_whitespace().filter(|t| t.parse::<i32>().is_ok()).map(|t| t.parse::<i32>().unwrap());
     let distances = data[1].split_whitespace().filter(|d| d.parse::<i32>().is_ok()).map(|d| d.parse::<i32>().unwrap());
 
-    let races: Vec<(i32, i32)> = times.zip(distances).collect();
+    // let races: Vec<(i32, i32)> = times.zip(distances).collect();
     let mut res = 1;
 
-    for (t, d) in races {
+    for (t, d) in times.zip(distances) {
         res *= (0..t+1).filter(|r| r*(t-r) > d).count();
     }
 
