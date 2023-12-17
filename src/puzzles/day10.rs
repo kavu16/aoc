@@ -36,8 +36,10 @@ pub fn solve1(data: &String) {
     visited.insert(start);
 
     let mut curr: ((i32, i32), (i32, i32)) = ((20,102), (21,103));
-    let mut step = 1;
+    visited.insert(curr.0);
+    visited.insert(curr.1);
 
+    let mut step = 1;
     while curr.0 != curr.1 {
         let (curr_0_a, curr_0_b) = pipes.get(&grid[curr.0.0 as usize][curr.0.1 as usize]).unwrap();
         if visited.contains(&(curr.0.0 + curr_0_a.0, curr.0.1 + curr_0_a.1)) {
