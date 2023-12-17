@@ -103,6 +103,7 @@ pub fn solve2(data: &String) {
         }
     }
 
+    // Pick's Law && Shoestring Theorem
     let b = visited.len();
     visited.push(start);
     let mut plus_lace = 0;
@@ -112,6 +113,7 @@ pub fn solve2(data: &String) {
         plus_lace += visited[i].0*visited[i+1].1;
         minus_lace += visited[i].1*visited[i+1].0;
     }
+    
     let area = (plus_lace - minus_lace) / 2;
 
     let res = (area + 1) - (b as i32)/2;
