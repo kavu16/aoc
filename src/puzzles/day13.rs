@@ -135,23 +135,23 @@ impl Mirror {
     fn find_smudge(&self) -> u64 {
         //Find Horizontal smudge
         let h_size = self.horizontal.len();
-        let mut h_match_grid = vec![vec![2; h_size]; h_size];
+        let mut h_diff_grid = vec![vec![2; h_size]; h_size];
         for i in 0..h_size {
             for j in (i+1)..h_size {
-                h_match_grid[i][j] = self.horizontal[i].iter().zip(self.horizontal[j].iter())
+                h_diff_grid[i][j] = self.horizontal[i].iter().zip(self.horizontal[j].iter())
                                             .map(|(l, r)| usize::from(!(l == r)))
                                             .sum::<usize>();
                 
             }
         }
         
-        for i in 1..h_match_grid.len() {
+        for i in 1..h_diff_grid.len() {
             let mut l = 0;
             let mut r = i;
             let mut diff_sum = 0;
             
             while l < r && diff_sum <= 1 {
-                diff_sum += h_match_grid[l][r];
+                diff_sum += h_diff_grid[l][r];
                 l += 1;
                 r -= 1;
             }
@@ -160,13 +160,13 @@ impl Mirror {
             }
         }
 
-        for i in 1..h_match_grid.len() {
+        for i in 1..h_diff_grid.len() {
             let mut l = i;
-            let mut r = h_match_grid.len()-1;
+            let mut r = h_diff_grid.len()-1;
             let mut diff_sum = 0;
 
             while l < r && diff_sum <= 1 {
-                diff_sum += h_match_grid[l][r];
+                diff_sum += h_diff_grid[l][r];
                 l += 1;
                 r -= 1;
             }
@@ -177,22 +177,22 @@ impl Mirror {
 
         //Find vertical smudge
         let v_size = self.vertical.len();
-        let mut v_match_grid = vec![vec![2; v_size]; v_size];
+        let mut v_diff_grid = vec![vec![2; v_size]; v_size];
         for i in 0..v_size {
             for j in (i+1)..v_size {
-                v_match_grid[i][j] = self.vertical[i].iter().zip(self.vertical[j].iter())
+                v_diff_grid[i][j] = self.vertical[i].iter().zip(self.vertical[j].iter())
                                             .map(|(l, r)| usize::from(!(l == r)))
                                             .sum::<usize>();
             }
         }
 
-        for i in 1..v_match_grid.len() {
+        for i in 1..v_diff_grid.len() {
             let mut l = 0;
             let mut r = i;
             let mut diff_sum = 0;
 
             while l < r && diff_sum <= 1 {
-                diff_sum += v_match_grid[l][r];
+                diff_sum += v_diff_grid[l][r];
                 l += 1;
                 r -= 1;
             }
@@ -201,13 +201,13 @@ impl Mirror {
             }
         }
 
-        for i in 1..v_match_grid.len() {
+        for i in 1..v_diff_grid.len() {
             let mut l = i;
-            let mut r = v_match_grid.len()-1;
+            let mut r = v_diff_grid.len()-1;
             let mut diff_sum = 0;
 
             while l < r && diff_sum <= 1 {
-                diff_sum += v_match_grid[l][r];
+                diff_sum += v_diff_grid[l][r];
                 l += 1;
                 r -= 1;
             }
