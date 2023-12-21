@@ -4,7 +4,10 @@ mod puzzles;
 
 use crate::puzzles::*;
 
+use std::env;
+
 fn main() {
+    // env::set_var("RUST_BACKTRACE", "1");
     let args = std::env::args().collect::<Vec<String>>();
     match args.len() {
         1 => {panic!("Not enough args!")},
