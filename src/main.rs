@@ -4,7 +4,7 @@ mod puzzles;
 
 use crate::puzzles::*;
 
-use std::env;
+// use std::env;
 
 fn main() {
     // env::set_var("RUST_BACKTRACE", "1");
@@ -79,6 +79,10 @@ fn main() {
                 "day16" => {
                     day16::solve1(&data);
                     day16::solve2(&data);
+                }
+                "day17" => {
+                    day17::solve1(&data);
+                    day17::solve2(&data);
                 }
                 _ => {
                     panic!("Invalid arg!");
