@@ -88,6 +88,10 @@ fn main() {
                     day18::solve1(&data);
                     day18::solve2(&data);
                 }
+                "day19" => {
+                    day19::solve1(&data);
+                    day19::solve2(&data);
+                }
                 _ => {
                     panic!("Invalid arg!");
                 }
