@@ -121,6 +121,6 @@ pub fn solve2(data: &String) -> i128 {
     res /= 2;
     res = res + count/2 + 1;
 
-    println!("Part 1 = {}", res);
+    println!("Part 2 = {}", res);
     res
 }
