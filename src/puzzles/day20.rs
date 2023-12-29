@@ -53,6 +53,52 @@ struct Tower {
     last: HashMap<String, Strength>,
 }
 
+impl Tower {
+    fn send_pulse(&mut self, 
+                    curr_strength: Strength, 
+                    curr_id: String, 
+                    prev_id: String, 
+                    pulse_queue: &mut VecDeque<Pulse>) {
+        match self.ttype {
+            Broadcaster => {
+                self.connections.iter().for_each(|d| {
+                    let new_pulse = Pulse { strength: curr_strength, 
+                                                   source: curr_id.to_string(), 
+                                                   dest: d.to_string() };
+                    pulse_queue.push_back(new_pulse);
+                });
+            }
+            FlipFlop => {
+                match curr_strength {
+                    High => (),
+                    Low => {
+                        self.state = !self.state;
+                        let mut new_strength = Low;
+                        if self.state { new_strength = High }
+                        self.connections.iter().for_each(|d| {
+                            let new_pulse = Pulse { strength: new_strength, 
+                                                           source: curr_id.to_string(), 
+                                                           dest: d.to_string() };
+                            pulse_queue.push_back(new_pulse);
+                        });
+                    }
+                }
+            },
+            Conjunction => {
+                self.last.insert(prev_id.to_string(), curr_strength);
+                let mut new_strength = High;
+                if self.last.iter().all(|(_k, &s)| s == High ) { new_strength = Low; }
+                self.connections.iter().for_each(|d| {
+                    let new_pulse = Pulse { strength: new_strength, 
+                                                source: curr_id.to_string(), 
+                                                dest: d.to_string() };
+                    pulse_queue.push_back(new_pulse);
+                });
+            }
+        }
+    }
+}
+
 struct Field {
     towers: HashMap<String, Tower>,
     pulse_queue: VecDeque<Pulse>,
@@ -78,43 +124,7 @@ impl Field {
                     }
                 }
                 if let Some(curr_tower) = self.towers.get_mut(&curr_id) {
-                    match curr_tower.ttype {
-                        Broadcaster => {
-                            curr_tower.connections.iter().for_each(|d| {
-                                let new_pulse = Pulse { strength: curr_strength, 
-                                                               source: curr_id.to_string(), 
-                                                               dest: d.to_string() };
-                                self.pulse_queue.push_back(new_pulse);
-                            });
-                        }
-                        FlipFlop => {
-                            match curr_strength {
-                                High => (),
-                                Low => {
-                                    curr_tower.state = !curr_tower.state;
-                                    let mut new_strength = Low;
-                                    if curr_tower.state { new_strength = High }
-                                    curr_tower.connections.iter().for_each(|d| {
-                                        let new_pulse = Pulse { strength: new_strength, 
-                                                                       source: curr_id.to_string(), 
-                                                                       dest: d.to_string() };
-                                        self.pulse_queue.push_back(new_pulse);
-                                    });
-                                }
-                            }
-                        },
-                        Conjunction => {
-                            curr_tower.last.insert(prev_id.to_string(), curr_strength);
-                            let mut new_strength = High;
-                            if curr_tower.last.iter().all(|(_k, &s)| s == High ) { new_strength = Low; }
-                            curr_tower.connections.iter().for_each(|d| {
-                                let new_pulse = Pulse { strength: new_strength, 
-                                                            source: curr_id.to_string(), 
-                                                            dest: d.to_string() };
-                                self.pulse_queue.push_back(new_pulse);
-                            });
-                        }
-                    }
+                    curr_tower.send_pulse(curr_strength, curr_id, prev_id, &mut self.pulse_queue);
                 } else {
                     continue;
                 }
