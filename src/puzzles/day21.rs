@@ -154,7 +154,11 @@ pub fn solve2(data: &String) -> usize {
     let quad = |x: i128| {
         (a * x.pow(2) + b * x + c) as usize
     };
-
+    
+    // The quadratic function is dependent on the number of expansions (not total steps) (imagine the case where
+    // you just walk in a straight line).  Therefore, we have to calculate our final answer based off of the expansions
+    // we have - an offset based on how we found the interpolation
+    
     let res = quad(total_steps as i128 / (2 * size as i128) - offset as i128);
     println!("Part 2 = {}", res);
     res
