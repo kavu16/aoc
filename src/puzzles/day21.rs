@@ -129,7 +129,6 @@ pub fn solve2(data: &String) -> usize {
     loop {
         vals.push_back(reachable_plots(x));
         x += 1;
-        println!("vals, x = {vals:?}, {x}");
         if vals.len() >= 4 {
             fdiff = [vals[1]-vals[0], vals[2]-vals[1], vals[3]-vals[2]];
             sdiff = [fdiff[2]-fdiff[1], fdiff[1]-fdiff[0]];
@@ -158,7 +157,7 @@ pub fn solve2(data: &String) -> usize {
     // The quadratic function is dependent on the number of expansions (not total steps) (imagine the case where
     // you just walk in a straight line).  Therefore, we have to calculate our final answer based off of the expansions
     // we have - an offset based on how we found the interpolation
-    
+
     let res = quad(total_steps as i128 / (2 * size as i128) - offset as i128);
     println!("Part 2 = {}", res);
     res
