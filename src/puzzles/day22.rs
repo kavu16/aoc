@@ -243,7 +243,9 @@ pub fn solve1(data: &String) -> usize {
                         orientation, 
                         begin: (x1, y1, z1), 
                         end: (x2, y2, z2),
-                        support: _ }) in bricks.iter() {
+                        support: _ 
+                    }
+                ) in bricks.iter() {
         match orientation {
             XAxis => {
                 for x in *x1..*x2+1 {
@@ -327,7 +329,9 @@ pub fn solve2(data: &String) -> usize {
                         orientation, 
                         begin: (x1, y1, z1), 
                         end: (x2, y2, z2),
-                        support: _ }) in bricks.iter() {
+                        support: _ 
+                    }
+                ) in bricks.iter() {
         match orientation {
             XAxis => {
                 for x in *x1..*x2+1 {
