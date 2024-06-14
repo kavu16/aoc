@@ -125,11 +125,14 @@ pub fn solve1(data: &String) {
         }
     });
 
-    let mut res = 0;
-    for (index, (_hand, bid)) in bids.iter().enumerate() {
-        // println!("Hand = {hand}, I bet {bid}");
-        res += bid * (index as i32 + 1);
-    }
+    // let mut res = 0;
+    // for (index, (_hand, bid)) in bids.iter().enumerate() {
+    //     // println!("Hand = {hand}, I bet {bid}");
+    //     res += bid * (index as i32 + 1);
+    // }
+    let res = bids.iter().enumerate()
+              .fold(0, |acc, (index, (_hand, bid))| 
+                        acc + bid * (index as i32 + 1));
 
     println!("Part 1 = {}", res);
 }
