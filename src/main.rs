@@ -108,6 +108,14 @@ fn main() {
                     day23::solve1(&data);
                     day23::solve2(&data);
                 }
+                "day24" => {
+                    day24::solve1::<200000000000000, 400000000000000>(&data);
+                    day24::solve2(&data);
+                }
+                "day25" => {
+                    day25::solve1(&data);
+                    day25::solve2(&data);
+                }
                 _ => {
                     panic!("Invalid arg!");
                 }
