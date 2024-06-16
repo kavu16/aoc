@@ -260,11 +260,9 @@ pub fn solve2(data: &String) -> usize {
     let mut prev_connections = HashMap::<String, Vec<(String, Strength)>>::new();
     for (id, tower) in &tower_field.towers {
         tower.connections.iter().for_each(|c_id| {
-            if let Some(prev_ids) = prev_connections.get_mut(c_id) {
-                prev_ids.push((id.to_string(), Low));
-            } else {
-                prev_connections.insert(c_id.to_string(), vec![(id.to_string(), Low)]);
-            }
+            prev_connections.entry(c_id.clone())
+                .and_modify(|prev_ids| prev_ids.push((id.to_string(), Low)))
+                .or_insert(vec![(id.to_string(), Low)]);
         })
     }
 
