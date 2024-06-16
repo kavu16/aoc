@@ -104,10 +104,14 @@ struct Field {
     pulse_queue: VecDeque<Pulse>,
     high_count: usize,
     low_count: usize,
+    cycles: HashMap<String, usize>,
+    presses: usize,
 }
 
 impl Field {
     fn press_button<const RX: bool>(&mut self) -> bool {
+        self.presses += 1;
+        // println!("Number of presses = {}", self.presses);
         let start_pulse = Pulse { strength: Low, source: String::from("button"), dest: String::from("broadcaster") };
         self.pulse_queue.push_front(start_pulse);
         while !self.pulse_queue.is_empty() {
@@ -117,11 +121,19 @@ impl Field {
                             dest: curr_id } = self.pulse_queue.pop_front().unwrap();
                 // println!("Pulse strength: {}, pulse source: {prev_id}, pulse dest: {curr_id}", if curr_strength == High {"High"} else {"Low"});
                 match curr_strength {
-                    High => self.high_count += 1,
-                    Low => {
-                        self.low_count += 1;
-                        if RX && curr_id == String::from("rx") { return true; }
+                    High => {
+                        self.high_count += 1;
+                        if RX && (
+                            prev_id == String::from("fz") ||
+                            prev_id == String::from("xf") ||
+                            prev_id == String::from("mp") ||
+                            prev_id == String::from("hn")
+                        ) {
+                            self.cycles.insert(prev_id.clone(), self.presses);
+                            // println!("Cycles = {:?}", self.cycles);
+                        }
                     }
+                    Low =>  self.low_count += 1,
                 }
                 if let Some(curr_tower) = self.towers.get_mut(&curr_id) {
                     curr_tower.send_pulse(curr_strength, curr_id, prev_id, &mut self.pulse_queue);
@@ -138,7 +150,14 @@ pub fn solve1(data: &String) -> usize {
     let mut tower_field = Field { towers: HashMap::<String, Tower>::new(),
                                      pulse_queue: VecDeque::<Pulse>::new(),
                                      high_count: 0,
-                                     low_count: 0 };
+                                     low_count: 0,
+                                     cycles: HashMap::<String, usize>::from([
+                                        (String::from("fz"), 0),
+                                        (String::from("xf"), 0),
+                                        (String::from("mp"), 0),
+                                        (String::from("hn"), 0)]),
+                                     presses: 0,
+                                    };
     
     for line in data.lines() {
         let (tower, connections) = line.split_once("->").unwrap();
@@ -202,7 +221,14 @@ pub fn solve2(data: &String) -> usize {
     let mut tower_field = Field { towers: HashMap::<String, Tower>::new(),
                                      pulse_queue: VecDeque::<Pulse>::new(),
                                      high_count: 0,
-                                     low_count: 0 };
+                                     low_count: 0,
+                                     cycles: HashMap::<String, usize>::from([
+                                        (String::from("fz"), 0),
+                                        (String::from("xf"), 0),
+                                        (String::from("mp"), 0),
+                                        (String::from("hn"), 0)]),
+                                     presses: 0
+                                    };
     
     for line in data.lines() {
         let (tower, connections) = line.split_once("->").unwrap();
@@ -253,14 +279,14 @@ pub fn solve2(data: &String) -> usize {
         }
     }
 
-    let mut res = 0;
-    // for i in 1.. {
-    //     if i % 10000 == 0 { println!("{i}"); }
-    //     if tower_field.press_button::<true>() {
-    //         res = i;
-    //     }
-    // }
+    loop {
+        tower_field.press_button::<true>();
+        if tower_field.cycles.values().all(|&p| p > 0) {
+            break;
+        }
+    }
 
-    println!("Part 1 = {}", res);
+    let res = tower_field.cycles.values().product();
+    println!("Part 2 = {}", res);
     res
 }
