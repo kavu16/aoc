@@ -1,4 +1,4 @@
-use std::collections::{HashMap, VecDeque};
+use std::{collections::{HashMap, VecDeque}, ops::Not};
 
 #[test]
 
@@ -26,7 +26,7 @@ fn test() {
     // assert_eq!(solve2(&example2), 0);
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Strength {
     High,
     Low,
@@ -39,19 +39,21 @@ struct Pulse {
     dest: String,
 }
 
-enum TowerType {
-    Broadcaster,
-    FlipFlop,
-    Conjunction,
+#[derive(Debug, Clone)]
+enum Tower {
+    Broadcaster {
+        connections: Vec<String>,
+    },
+    FlipFlop {
+        connections: Vec<String>,
+        state: bool,
+    },
+    Conjunction {
+        connections: Vec<String>,
+        last: HashMap<String, Strength>,
+    },
 }
-use TowerType::*;
-
-struct Tower {
-    connections: Vec<String>,
-    ttype: TowerType,
-    state: bool,
-    last: HashMap<String, Strength>,
-}
+use Tower::*;
 
 impl Tower {
     fn send_pulse(&mut self, 
@@ -59,23 +61,23 @@ impl Tower {
                     curr_id: String, 
                     prev_id: String, 
                     pulse_queue: &mut VecDeque<Pulse>) {
-        match self.ttype {
-            Broadcaster => {
-                self.connections.iter().for_each(|d| {
+        match self {
+            Broadcaster { connections } => {
+                connections.iter().for_each(|d| {
                     let new_pulse = Pulse { strength: curr_strength, 
                                                    source: curr_id.to_string(), 
                                                    dest: d.to_string() };
                     pulse_queue.push_back(new_pulse);
                 });
             }
-            FlipFlop => {
+            FlipFlop { connections, state } => {
                 match curr_strength {
                     High => (),
                     Low => {
-                        self.state = !self.state;
+                        *state = state.not();
                         let mut new_strength = Low;
-                        if self.state { new_strength = High }
-                        self.connections.iter().for_each(|d| {
+                        if *state { new_strength = High }
+                        connections.iter().for_each(|d| {
                             let new_pulse = Pulse { strength: new_strength, 
                                                            source: curr_id.to_string(), 
                                                            dest: d.to_string() };
@@ -84,17 +86,25 @@ impl Tower {
                     }
                 }
             },
-            Conjunction => {
-                self.last.insert(prev_id.to_string(), curr_strength);
+            Conjunction { connections, last }=> {
+                last.insert(prev_id.to_string(), curr_strength);
                 let mut new_strength = High;
-                if self.last.iter().all(|(_k, &s)| s == High ) { new_strength = Low; }
-                self.connections.iter().for_each(|d| {
+                if last.iter().all(|(_k, &s)| s == High ) { new_strength = Low; }
+                connections.iter().for_each(|d| {
                     let new_pulse = Pulse { strength: new_strength, 
                                                 source: curr_id.to_string(), 
                                                 dest: d.to_string() };
                     pulse_queue.push_back(new_pulse);
                 });
             }
+        }
+    }
+
+    fn get_connections(&self) -> &Vec<String> {
+        match self {
+            Broadcaster { connections } => connections,
+            FlipFlop { connections, state: _ } => connections,
+            Conjunction { connections, last: _ } => connections,
         }
     }
 }
@@ -166,29 +176,20 @@ pub fn solve1(data: &String) -> usize {
 
         if tower.contains("broadcaster") {
             tower_field.towers.insert(String::from("broadcaster"),
-                                        Tower { connections, 
-                                                   ttype: Broadcaster, 
-                                                   state: true, 
-                                                   last: HashMap::<String, Strength>::new() });
+                                        Broadcaster { connections });
         } else if tower.contains("%") {
             tower_field.towers.insert(String::from(tower.trim_start_matches("%")),
-                                        Tower { connections, 
-                                                   ttype: FlipFlop, 
-                                                   state: false, 
-                                                   last: HashMap::<String, Strength>::new() });
+                                        FlipFlop { connections, state: false });
         } else if tower.contains("&") {
             tower_field.towers.insert(String::from(tower.trim_start_matches("&")),
-                                        Tower { connections, 
-                                                   ttype: Conjunction, 
-                                                   state: true, 
-                                                   last:  HashMap::<String, Strength>::new()});
+                                        Conjunction { connections, last: HashMap::<String, Strength>::new()});
         }
 
     }
 
     let mut prev_connections = HashMap::<String, Vec<(String, Strength)>>::new();
-    for (id, tower) in &tower_field.towers {
-        tower.connections.iter().for_each(|c_id| {
+    for (id, ref tower) in &tower_field.towers {
+        tower.get_connections().iter().for_each(|c_id| {
             if let Some(prev_ids) = prev_connections.get_mut(c_id) {
                 prev_ids.push((id.to_string(), Low));
             } else {
@@ -199,9 +200,9 @@ pub fn solve1(data: &String) -> usize {
 
     for (id, prev_ids) in prev_connections {
         if let Some(tower) = tower_field.towers.get_mut(&id) {
-            match tower.ttype {
-                Conjunction => {
-                    tower.last.extend(prev_ids);
+            match tower {
+                Conjunction { connections: _, last }=> {
+                    last.extend(prev_ids);
                 }
                 _ => (),
             }
@@ -237,29 +238,20 @@ pub fn solve2(data: &String) -> usize {
 
         if tower.contains("broadcaster") {
             tower_field.towers.insert(String::from("broadcaster"),
-                                        Tower { connections, 
-                                                   ttype: Broadcaster, 
-                                                   state: true, 
-                                                   last: HashMap::<String, Strength>::new() });
+                                        Broadcaster { connections });
         } else if tower.contains("%") {
             tower_field.towers.insert(String::from(tower.trim_start_matches("%")),
-                                        Tower { connections, 
-                                                   ttype: FlipFlop, 
-                                                   state: false, 
-                                                   last: HashMap::<String, Strength>::new() });
+                                        FlipFlop { connections, state: false });
         } else if tower.contains("&") {
             tower_field.towers.insert(String::from(tower.trim_start_matches("&")),
-                                        Tower { connections, 
-                                                   ttype: Conjunction, 
-                                                   state: true, 
-                                                   last:  HashMap::<String, Strength>::new()});
+                                        Conjunction { connections, last: HashMap::<String, Strength>::new()});
         }
 
     }
 
     let mut prev_connections = HashMap::<String, Vec<(String, Strength)>>::new();
-    for (id, tower) in &tower_field.towers {
-        tower.connections.iter().for_each(|c_id| {
+    for (id, ref tower) in &tower_field.towers {
+        tower.get_connections().iter().for_each(|c_id| {
             prev_connections.entry(c_id.clone())
                 .and_modify(|prev_ids| prev_ids.push((id.to_string(), Low)))
                 .or_insert(vec![(id.to_string(), Low)]);
@@ -268,9 +260,9 @@ pub fn solve2(data: &String) -> usize {
 
     for (id, prev_ids) in prev_connections {
         if let Some(tower) = tower_field.towers.get_mut(&id) {
-            match tower.ttype {
-                Conjunction => {
-                    tower.last.extend(prev_ids);
+            match tower {
+                Conjunction { connections: _, last } => {
+                    last.extend(prev_ids);
                 }
                 _ => (),
             }
