@@ -86,8 +86,8 @@ pub fn solve1(data: &String) -> usize {
     res
 }
 
-pub fn solve2(_data: &String) -> usize {
-    let res = 0;
-    println!("Part 2 = {}", res);
-    res
-}
+// pub fn solve2(_data: &String) -> usize {
+//     let res = 0;
+//     println!("Part 2 = {}", res);
+//     res
+// } No part 2
