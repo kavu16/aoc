@@ -85,7 +85,8 @@ impl Tower {
                             let new_pulse = Pulse { 
                                 strength: new_strength, 
                                 source: curr_id.to_string(), 
-                                dest: d.to_string() };
+                                dest: d.to_string() 
+                            };
                             pulse_queue.push_back(new_pulse);
                         });
                     }
@@ -99,7 +100,8 @@ impl Tower {
                     let new_pulse = Pulse { 
                         strength: new_strength, 
                         source: curr_id.to_string(), 
-                        dest: d.to_string() };
+                        dest: d.to_string() 
+                    };
                     pulse_queue.push_back(new_pulse);
                 });
             }
