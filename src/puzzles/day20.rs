@@ -56,17 +56,21 @@ enum Tower {
 use Tower::*;
 
 impl Tower {
-    fn send_pulse(&mut self, 
-                    curr_strength: Strength, 
-                    curr_id: String, 
-                    prev_id: String, 
-                    pulse_queue: &mut VecDeque<Pulse>) {
+    fn send_pulse(
+        &mut self, 
+        curr_strength: Strength, 
+        curr_id: String, 
+        prev_id: String, 
+        pulse_queue: &mut VecDeque<Pulse>
+    ) {
         match self {
             Broadcaster { connections } => {
                 connections.iter().for_each(|d| {
-                    let new_pulse = Pulse { strength: curr_strength, 
-                                                   source: curr_id.to_string(), 
-                                                   dest: d.to_string() };
+                    let new_pulse = Pulse { 
+                        strength: curr_strength, 
+                        source: curr_id.to_string(), 
+                        dest: d.to_string() 
+                    };
                     pulse_queue.push_back(new_pulse);
                 });
             }
@@ -78,22 +82,24 @@ impl Tower {
                         let mut new_strength = Low;
                         if *state { new_strength = High }
                         connections.iter().for_each(|d| {
-                            let new_pulse = Pulse { strength: new_strength, 
-                                                           source: curr_id.to_string(), 
-                                                           dest: d.to_string() };
+                            let new_pulse = Pulse { 
+                                strength: new_strength, 
+                                source: curr_id.to_string(), 
+                                dest: d.to_string() };
                             pulse_queue.push_back(new_pulse);
                         });
                     }
                 }
             },
-            Conjunction { connections, last }=> {
+            Conjunction { connections, last } => {
                 last.insert(prev_id.to_string(), curr_strength);
                 let mut new_strength = High;
                 if last.iter().all(|(_k, &s)| s == High ) { new_strength = Low; }
                 connections.iter().for_each(|d| {
-                    let new_pulse = Pulse { strength: new_strength, 
-                                                source: curr_id.to_string(), 
-                                                dest: d.to_string() };
+                    let new_pulse = Pulse { 
+                        strength: new_strength, 
+                        source: curr_id.to_string(), 
+                        dest: d.to_string() };
                     pulse_queue.push_back(new_pulse);
                 });
             }
@@ -119,16 +125,18 @@ struct Field {
 }
 
 impl Field {
-    fn press_button<const RX: bool>(&mut self) -> bool {
+    fn press_button<const RX: bool>(&mut self) {
         self.presses += 1;
         // println!("Number of presses = {}", self.presses);
         let start_pulse = Pulse { strength: Low, source: String::from("button"), dest: String::from("broadcaster") };
         self.pulse_queue.push_front(start_pulse);
         while !self.pulse_queue.is_empty() {
             for _ in 0..self.pulse_queue.len() {
-                let Pulse { strength: curr_strength, 
-                            source: prev_id, 
-                            dest: curr_id } = self.pulse_queue.pop_front().unwrap();
+                let Pulse { 
+                    strength: curr_strength, 
+                    source: prev_id, 
+                    dest: curr_id
+                } = self.pulse_queue.pop_front().unwrap();
                 // println!("Pulse strength: {}, pulse source: {prev_id}, pulse dest: {curr_id}", if curr_strength == High {"High"} else {"Low"});
                 match curr_strength {
                     High => {
@@ -143,31 +151,30 @@ impl Field {
                             // println!("Cycles = {:?}", self.cycles);
                         }
                     }
-                    Low =>  self.low_count += 1,
+                    Low => self.low_count += 1,
                 }
                 if let Some(curr_tower) = self.towers.get_mut(&curr_id) {
                     curr_tower.send_pulse(curr_strength, curr_id, prev_id, &mut self.pulse_queue);
-                } else {
-                    continue;
                 }
             }
         }
-        false
     }
 }
 
 pub fn solve1(data: &String) -> usize {
-    let mut tower_field = Field { towers: HashMap::<String, Tower>::new(),
-                                     pulse_queue: VecDeque::<Pulse>::new(),
-                                     high_count: 0,
-                                     low_count: 0,
-                                     cycles: HashMap::<String, usize>::from([
-                                        (String::from("fz"), 0),
-                                        (String::from("xf"), 0),
-                                        (String::from("mp"), 0),
-                                        (String::from("hn"), 0)]),
-                                     presses: 0,
-                                    };
+    let mut tower_field = Field { 
+        towers: HashMap::<String, Tower>::new(),
+        pulse_queue: VecDeque::<Pulse>::new(),
+        high_count: 0,
+        low_count: 0,
+        cycles: HashMap::<String, usize>::from([
+            (String::from("fz"), 0),
+            (String::from("xf"), 0),
+            (String::from("mp"), 0),
+            (String::from("hn"), 0)
+        ]),
+        presses: 0,
+    };
     
     for line in data.lines() {
         let (tower, connections) = line.split_once("->").unwrap();
@@ -219,17 +226,19 @@ pub fn solve1(data: &String) -> usize {
 }
 
 pub fn solve2(data: &String) -> usize {
-    let mut tower_field = Field { towers: HashMap::<String, Tower>::new(),
-                                     pulse_queue: VecDeque::<Pulse>::new(),
-                                     high_count: 0,
-                                     low_count: 0,
-                                     cycles: HashMap::<String, usize>::from([
-                                        (String::from("fz"), 0),
-                                        (String::from("xf"), 0),
-                                        (String::from("mp"), 0),
-                                        (String::from("hn"), 0)]),
-                                     presses: 0
-                                    };
+    let mut tower_field = Field { 
+        towers: HashMap::<String, Tower>::new(),
+        pulse_queue: VecDeque::<Pulse>::new(),
+        high_count: 0,
+        low_count: 0,
+        cycles: HashMap::<String, usize>::from([
+            (String::from("fz"), 0),
+            (String::from("xf"), 0),
+            (String::from("mp"), 0),
+            (String::from("hn"), 0),
+        ]),
+        presses: 0,
+    };
     
     for line in data.lines() {
         let (tower, connections) = line.split_once("->").unwrap();
